@@ -37,3 +37,4 @@ class AuthService {
     await prefs.clear();
   }
 }
+// AuthService - v1.0
