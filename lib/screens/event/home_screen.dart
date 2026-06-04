@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/event_provider.dart';
 import '../../services/auth_service.dart';
+import '../../services/fcm_service.dart';
 import '../../models/event_model.dart';
 import '../auth/login_screen.dart';
 import '../profile/profile_screen.dart';
@@ -32,6 +33,7 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     _loadUser();
     _loadEvents();
+    FCMService.initialize(context);
   }
 
   Future<void> _loadUser() async {
@@ -134,7 +136,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // ─── HOME PAGE ───────────────────────────────────────────
   Widget _buildHome() {
     if (_isLoading) return _buildSkeleton();
     return SingleChildScrollView(
@@ -327,9 +328,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 padding: const EdgeInsets.symmetric(
                     horizontal: 18, vertical: 8),
                 decoration: BoxDecoration(
-                  color: selected
-                      ? const Color(0xFF1A6BFF)
-                      : Colors.white,
+                  color: selected ? const Color(0xFF1A6BFF) : Colors.white,
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(
                     color: selected
@@ -341,9 +340,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   _categories[index],
                   style: TextStyle(
                     color: selected ? Colors.white : Colors.grey.shade700,
-                    fontWeight: selected
-                        ? FontWeight.bold
-                        : FontWeight.normal,
+                    fontWeight:
+                        selected ? FontWeight.bold : FontWeight.normal,
                     fontSize: 13,
                   ),
                 ),
@@ -365,8 +363,7 @@ class _HomeScreenState extends State<HomeScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text('Unggulan',
-                  style: TextStyle(
-                      fontWeight: FontWeight.bold, fontSize: 16)),
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
               TextButton(
                 onPressed: () {},
                 child: const Text('Lihat Semua',
@@ -401,8 +398,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ? 3
                       : provider.events.length,
                   itemBuilder: (context, index) {
-                    return _buildFeaturedCard(
-                        provider.events[index], index);
+                    return _buildFeaturedCard(provider.events[index], index);
                   },
                 ),
               );
@@ -417,8 +413,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return GestureDetector(
       onTap: () => Navigator.push(
         context,
-        MaterialPageRoute(
-            builder: (_) => DetailEventScreen(event: event)),
+        MaterialPageRoute(builder: (_) => DetailEventScreen(event: event)),
       ),
       child: Container(
         width: 200,
@@ -427,10 +422,7 @@ class _HomeScreenState extends State<HomeScreen> {
           gradient: LinearGradient(
             colors: index == 0
                 ? [const Color(0xFF1A6BFF), const Color(0xFF0A3D9E)]
-                : [
-                    Colors.blueGrey.shade700,
-                    Colors.blueGrey.shade900
-                  ],
+                : [Colors.blueGrey.shade700, Colors.blueGrey.shade900],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -442,8 +434,7 @@ class _HomeScreenState extends State<HomeScreen> {
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
             Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
                 color: Colors.white.withOpacity(0.2),
                 borderRadius: BorderRadius.circular(6),
@@ -469,8 +460,7 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(height: 4),
             Text(
               '${event.location} • ${event.date}',
-              style: const TextStyle(
-                  color: Colors.white70, fontSize: 11),
+              style: const TextStyle(color: Colors.white70, fontSize: 11),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
@@ -490,8 +480,7 @@ class _HomeScreenState extends State<HomeScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text('Mendatang',
-                  style: TextStyle(
-                      fontWeight: FontWeight.bold, fontSize: 16)),
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
               TextButton(
                 onPressed: () {},
                 child: const Text('Lihat Semua',
@@ -501,9 +490,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           Consumer<EventProvider>(
             builder: (context, provider, _) {
-              if (provider.events.isEmpty) {
-                return const SizedBox.shrink();
-              }
+              if (provider.events.isEmpty) return const SizedBox.shrink();
               final items = provider.events.length > 4
                   ? provider.events.sublist(0, 4)
                   : provider.events;
@@ -524,8 +511,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     onTap: () => Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (_) =>
-                              DetailEventScreen(event: event)),
+                          builder: (_) => DetailEventScreen(event: event)),
                     ),
                     child: Container(
                       padding: const EdgeInsets.all(12),
@@ -554,15 +540,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ? event.date.split(' ')[1]
                                 : '',
                             style: const TextStyle(
-                                fontSize: 12,
-                                color: Color(0xFF1A6BFF)),
+                                fontSize: 12, color: Color(0xFF1A6BFF)),
                           ),
                           const Spacer(),
                           Text(
                             event.title,
                             style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 13),
+                                fontWeight: FontWeight.bold, fontSize: 13),
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -576,8 +560,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 child: Text(
                                   event.location,
                                   style: const TextStyle(
-                                      fontSize: 11,
-                                      color: Colors.grey),
+                                      fontSize: 11, color: Colors.grey),
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                 ),
@@ -607,8 +590,7 @@ class _HomeScreenState extends State<HomeScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text('Semua Event',
-                  style: TextStyle(
-                      fontWeight: FontWeight.bold, fontSize: 16)),
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
               TextButton(
                 onPressed: () {},
                 child: const Text('Lihat Semua',
@@ -635,11 +617,8 @@ class _HomeScreenState extends State<HomeScreen> {
                           color: const Color(0xFFEEF3FF),
                           borderRadius: BorderRadius.circular(16),
                         ),
-                        child: const Icon(
-                          Icons.folder_open_outlined,
-                          size: 64,
-                          color: Color(0xFF1A6BFF),
-                        ),
+                        child: const Icon(Icons.folder_open_outlined,
+                            size: 64, color: Color(0xFF1A6BFF)),
                       ),
                       const SizedBox(height: 16),
                       Container(
@@ -677,8 +656,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       const SizedBox(height: 4),
                       const Text(
                         'Coba cek kembali nanti ya!',
-                        style: TextStyle(
-                            color: Colors.grey, fontSize: 13),
+                        style: TextStyle(color: Colors.grey, fontSize: 13),
                       ),
                     ],
                   ),
@@ -703,8 +681,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return GestureDetector(
       onTap: () => Navigator.push(
         context,
-        MaterialPageRoute(
-            builder: (_) => DetailEventScreen(event: event)),
+        MaterialPageRoute(builder: (_) => DetailEventScreen(event: event)),
       ),
       child: Container(
         margin: const EdgeInsets.only(bottom: 12),
@@ -786,7 +763,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // ─── EVENTS PAGE ─────────────────────────────────────────
   Widget _buildEventsPage() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -797,10 +773,8 @@ class _HomeScreenState extends State<HomeScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text('Semua Event',
-                  style: TextStyle(
-                      fontWeight: FontWeight.bold, fontSize: 20)),
-              const Icon(Icons.search,
-                  color: Color(0xFF1A6BFF), size: 26),
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
+              const Icon(Icons.search, color: Color(0xFF1A6BFF), size: 26),
             ],
           ),
         ),
@@ -849,7 +823,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // ─── BOTTOM NAV ──────────────────────────────────────────
   Widget _buildBottomNav() {
     return Container(
       decoration: BoxDecoration(
@@ -866,13 +839,11 @@ class _HomeScreenState extends State<HomeScreen> {
         selectedItemColor: const Color(0xFF1A6BFF),
         unselectedItemColor: Colors.grey,
         type: BottomNavigationBarType.fixed,
-        selectedLabelStyle:
-            const TextStyle(fontWeight: FontWeight.bold),
+        selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold),
         items: [
           BottomNavigationBarItem(
             icon: Container(
-              padding: const EdgeInsets.symmetric(
-                  horizontal: 16, vertical: 6),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
               decoration: BoxDecoration(
                 color: _selectedIndex == 0
                     ? const Color(0xFF1A6BFF)
@@ -880,16 +851,13 @@ class _HomeScreenState extends State<HomeScreen> {
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Icon(Icons.home_rounded,
-                  color: _selectedIndex == 0
-                      ? Colors.white
-                      : Colors.grey),
+                  color: _selectedIndex == 0 ? Colors.white : Colors.grey),
             ),
             label: 'Home',
           ),
           BottomNavigationBarItem(
             icon: Container(
-              padding: const EdgeInsets.symmetric(
-                  horizontal: 16, vertical: 6),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
               decoration: BoxDecoration(
                 color: _selectedIndex == 1
                     ? const Color(0xFF1A6BFF)
@@ -897,16 +865,13 @@ class _HomeScreenState extends State<HomeScreen> {
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Icon(Icons.event_outlined,
-                  color: _selectedIndex == 1
-                      ? Colors.white
-                      : Colors.grey),
+                  color: _selectedIndex == 1 ? Colors.white : Colors.grey),
             ),
             label: 'Events',
           ),
           BottomNavigationBarItem(
             icon: Container(
-              padding: const EdgeInsets.symmetric(
-                  horizontal: 16, vertical: 6),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
               decoration: BoxDecoration(
                 color: _selectedIndex == 2
                     ? const Color(0xFF1A6BFF)
@@ -914,16 +879,13 @@ class _HomeScreenState extends State<HomeScreen> {
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Icon(Icons.event_available_outlined,
-                  color: _selectedIndex == 2
-                      ? Colors.white
-                      : Colors.grey),
+                  color: _selectedIndex == 2 ? Colors.white : Colors.grey),
             ),
             label: 'My Events',
           ),
           BottomNavigationBarItem(
             icon: Container(
-              padding: const EdgeInsets.symmetric(
-                  horizontal: 16, vertical: 6),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
               decoration: BoxDecoration(
                 color: _selectedIndex == 3
                     ? const Color(0xFF1A6BFF)
@@ -931,9 +893,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Icon(Icons.person_outline,
-                  color: _selectedIndex == 3
-                      ? Colors.white
-                      : Colors.grey),
+                  color: _selectedIndex == 3 ? Colors.white : Colors.grey),
             ),
             label: 'Profile',
           ),
@@ -942,4 +902,3 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 }
-// HomeScreen - v1.0

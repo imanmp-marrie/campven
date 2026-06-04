@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../providers/event_provider.dart';
 import '../../models/event_model.dart';
 import '../../services/auth_service.dart';
+import '../../services/fcm_service.dart';
 
 class AddEventScreen extends StatefulWidget {
   const AddEventScreen({super.key});
@@ -69,27 +70,39 @@ class _AddEventScreenState extends State<AddEventScreen> {
 
     setState(() => _isLoading = true);
 
-    final authService = AuthService();
-    final userName = await authService.getUserName();
+    try {
+      final authService = AuthService();
+      final userName = await authService.getUserName();
 
-    final event = EventModel(
-      id: '',
-      title: title,
-      description: desc,
-      location: location,
-      date: date,
-      category: _selectedCategory,
-      createdBy: userName,
-    );
+      final event = EventModel(
+        id: '',
+        title: title,
+        description: desc,
+        location: location,
+        date: date,
+        category: _selectedCategory,
+        createdBy: userName,
+      );
 
-    await Provider.of<EventProvider>(context, listen: false).addEvent(event);
+      await Provider.of<EventProvider>(context, listen: false).addEvent(event);
 
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Event berhasil ditambahkan!')),
-    );
-    Navigator.pop(context);
-    setState(() => _isLoading = false);
+      if (!mounted) return;
+
+      // Kirim notifikasi FCM saat event berhasil dibuat
+      await FCMService.sendEventNotification(context, title);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Event berhasil ditambahkan!')),
+      );
+      Navigator.pop(context);
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Gagal menambahkan event: $e')),
+      );
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
   }
 
   @override
@@ -121,7 +134,6 @@ class _AddEventScreenState extends State<AddEventScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Upload poster
             const Text('Poster Event',
                 style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
             const SizedBox(height: 8),
@@ -133,7 +145,6 @@ class _AddEventScreenState extends State<AddEventScreen> {
                 borderRadius: BorderRadius.circular(14),
                 border: Border.all(
                     color: const Color(0xFF1A6BFF).withOpacity(0.4),
-                    style: BorderStyle.solid,
                     width: 1.5),
               ),
               child: Column(
@@ -159,14 +170,12 @@ class _AddEventScreenState extends State<AddEventScreen> {
               ),
             ),
             const SizedBox(height: 20),
-            // Nama Event
             _buildLabel('Nama Event'),
             _buildTextField(
               controller: _titleController,
               hint: 'Contoh: Seminar Karier Teknologi 2024',
             ),
             const SizedBox(height: 16),
-            // Kategori
             _buildLabel('Kategori'),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -182,18 +191,17 @@ class _AddEventScreenState extends State<AddEventScreen> {
                   items: _categories.map((cat) {
                     return DropdownMenuItem(value: cat, child: Text(cat));
                   }).toList(),
-                  onChanged: (val) =>
-                      setState(() => _selectedCategory = val!),
+                  onChanged: (val) => setState(() => _selectedCategory = val!),
                 ),
               ),
             ),
             const SizedBox(height: 16),
-            // Tanggal
             _buildLabel('Tanggal'),
             GestureDetector(
               onTap: _pickDate,
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 16, vertical: 16),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(12),
@@ -218,7 +226,6 @@ class _AddEventScreenState extends State<AddEventScreen> {
               ),
             ),
             const SizedBox(height: 16),
-            // Lokasi
             _buildLabel('Lokasi'),
             _buildTextField(
               controller: _locationController,
@@ -226,7 +233,6 @@ class _AddEventScreenState extends State<AddEventScreen> {
               icon: Icons.location_on_outlined,
             ),
             const SizedBox(height: 16),
-            // Deskripsi
             _buildLabel('Deskripsi'),
             Container(
               decoration: BoxDecoration(
@@ -245,7 +251,6 @@ class _AddEventScreenState extends State<AddEventScreen> {
               ),
             ),
             const SizedBox(height: 32),
-            // Tombol simpan
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
@@ -266,7 +271,6 @@ class _AddEventScreenState extends State<AddEventScreen> {
               ),
             ),
             const SizedBox(height: 12),
-            // Batalkan
             Center(
               child: TextButton(
                 onPressed: () => Navigator.pop(context),
@@ -315,4 +319,3 @@ class _AddEventScreenState extends State<AddEventScreen> {
     );
   }
 }
-// AddEventScreen - v1.0
