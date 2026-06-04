@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "190879026833",
+    "firebase_url": "https://campven-8f0cd-default-rtdb.firebaseio.com",
+    "project_id": "campven-8f0cd",
+    "storage_bucket": "campven-8f0cd.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:190879026833:android:0ab53cc3d7d290eef7b930",
+        "android_client_info": {
+          "package_name": "com.example.campven"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCVll429Myeqn0tMFv3c4bJMEMtWoujGFo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
