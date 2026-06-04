@@ -381,3 +381,4 @@ class DetailEventScreen extends StatelessWidget {
     );
   }
 }
+// DetailEventScreen - v1.0
