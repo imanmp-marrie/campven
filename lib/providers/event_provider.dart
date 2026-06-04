@@ -42,3 +42,4 @@ class EventProvider with ChangeNotifier {
     await _db.child(id).remove();
   }
 }
+// EventProvider - v1.0
