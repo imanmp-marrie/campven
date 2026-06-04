@@ -42,3 +42,4 @@ class EventModel {
     };
   }
 }
+// EventModel - v1.0
