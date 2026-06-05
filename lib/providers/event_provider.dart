@@ -12,11 +12,9 @@ class EventProvider with ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
 
-  // Ambil semua event (Real-time)
   void fetchEvents() {
     _isLoading = true;
     _errorMessage = null;
-    notifyListeners();
 
     _db.onValue.listen(
       (event) {
@@ -32,17 +30,21 @@ class EventProvider with ChangeNotifier {
         }
         _isLoading = false;
         _errorMessage = null;
-        notifyListeners();
+        // Gunakan WidgetsBinding supaya tidak error saat build
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          notifyListeners();
+        });
       },
       onError: (error) {
         _isLoading = false;
         _errorMessage = 'Gagal memuat event: $error';
-        notifyListeners();
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          notifyListeners();
+        });
       },
     );
   }
 
-  // Tambah event baru
   Future<bool> addEvent(EventModel event) async {
     try {
       final newRef = _db.push();
@@ -56,7 +58,6 @@ class EventProvider with ChangeNotifier {
     }
   }
 
-  // Update event
   Future<bool> updateEvent(EventModel event) async {
     try {
       await _db.child(event.id).update(event.toMap());
@@ -68,7 +69,6 @@ class EventProvider with ChangeNotifier {
     }
   }
 
-  // Hapus event
   Future<bool> deleteEvent(String id) async {
     try {
       await _db.child(id).remove();
@@ -80,7 +80,6 @@ class EventProvider with ChangeNotifier {
     }
   }
 
-  // Reset error
   void clearError() {
     _errorMessage = null;
     notifyListeners();
