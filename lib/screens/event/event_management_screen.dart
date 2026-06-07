@@ -218,7 +218,7 @@ class EventManagementScreen extends StatelessWidget {
                           );
                           if (confirm == true) {
                             if (!context.mounted) return;
-                            await provider.deleteEvent(event.id);
+                            await provider.deleteEvent(event.id.toString());
                           }
                         },
                         padding: EdgeInsets.zero,
