@@ -323,7 +323,7 @@ class DetailEventScreen extends StatelessWidget {
                               if (!context.mounted) return;
                               await Provider.of<EventProvider>(context,
                                       listen: false)
-                                  .deleteEvent(event.id);
+                                  .deleteEvent(event.id.toString());
                               if (!context.mounted) return;
                               Navigator.pop(context);
                               ScaffoldMessenger.of(context).showSnackBar(

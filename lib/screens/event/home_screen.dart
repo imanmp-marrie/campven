@@ -34,6 +34,7 @@ class _HomeScreenState extends State<HomeScreen> {
     _loadUser();
     _loadEvents();
     FCMService.initialize(context);
+    Provider.of<EventProvider>(context, listen: false).initWebSocket();
   }
 
   Future<void> _loadUser() async {

@@ -93,7 +93,7 @@ class _MyEventsScreenState extends State<MyEventsScreen>
     if (confirm == true) {
       if (!context.mounted) return;
       await Provider.of<EventProvider>(context, listen: false)
-          .deleteEvent(event.id);
+          .deleteEvent(event.id.toString());
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Event berhasil dihapus!')),

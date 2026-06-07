@@ -5,7 +5,6 @@ import '../../models/event_model.dart';
 
 class EditEventScreen extends StatefulWidget {
   final EventModel event;
-
   const EditEventScreen({super.key, required this.event});
 
   @override
@@ -27,10 +26,14 @@ class _EditEventScreenState extends State<EditEventScreen> {
   @override
   void initState() {
     super.initState();
-    _titleController = TextEditingController(text: widget.event.title);
-    _descController = TextEditingController(text: widget.event.description);
-    _locationController = TextEditingController(text: widget.event.location);
-    _dateController = TextEditingController(text: widget.event.date);
+    _titleController =
+        TextEditingController(text: widget.event.title);
+    _descController =
+        TextEditingController(text: widget.event.description);
+    _locationController =
+        TextEditingController(text: widget.event.location);
+    _dateController =
+        TextEditingController(text: widget.event.date);
     _selectedCategory = widget.event.category;
   }
 
@@ -43,7 +46,8 @@ class _EditEventScreenState extends State<EditEventScreen> {
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
-            colorScheme: const ColorScheme.light(primary: Color(0xFF1A6BFF)),
+            colorScheme: const ColorScheme.light(
+                primary: Color(0xFF1A6BFF)),
           ),
           child: child!,
         );
@@ -88,17 +92,27 @@ class _EditEventScreenState extends State<EditEventScreen> {
       date: date,
       category: _selectedCategory,
       createdBy: widget.event.createdBy,
+      userId: widget.event.userId,
     );
 
-    await Provider.of<EventProvider>(context, listen: false)
+    final success = await Provider.of<EventProvider>(context,
+            listen: false)
         .updateEvent(updatedEvent);
 
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Event berhasil diupdate!')),
-    );
-    Navigator.pop(context);
-    Navigator.pop(context);
+
+    if (success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Event berhasil diupdate!')),
+      );
+      Navigator.pop(context);
+      Navigator.pop(context);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Gagal mengupdate event!')),
+      );
+    }
+
     setState(() => _isLoading = false);
   }
 
@@ -110,28 +124,20 @@ class _EditEventScreenState extends State<EditEventScreen> {
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF1A1A2E)),
+          icon: const Icon(Icons.arrow_back,
+              color: Color(0xFF1A1A2E)),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
-          'Edit Event',
-          style: TextStyle(color: Color(0xFF1A1A2E), fontWeight: FontWeight.bold),
-        ),
-        actions: [
-          CircleAvatar(
-            radius: 18,
-            backgroundColor: Colors.grey.shade200,
-            child: const Icon(Icons.person, color: Colors.grey, size: 20),
-          ),
-          const SizedBox(width: 16),
-        ],
+        title: const Text('Edit Event',
+            style: TextStyle(
+                color: Color(0xFF1A1A2E),
+                fontWeight: FontWeight.bold)),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Cover image
             Stack(
               children: [
                 Container(
@@ -146,7 +152,8 @@ class _EditEventScreenState extends State<EditEventScreen> {
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: const Center(
-                    child: Icon(Icons.event, size: 60, color: Colors.white54),
+                    child: Icon(Icons.event,
+                        size: 60, color: Colors.white54),
                   ),
                 ),
                 Positioned(
@@ -178,11 +185,10 @@ class _EditEventScreenState extends State<EditEventScreen> {
               ],
             ),
             const SizedBox(height: 20),
-            // Event Title
             _buildLabel('Event Title'),
-            _buildTextField(controller: _titleController, hint: 'Judul event'),
+            _buildTextField(
+                controller: _titleController, hint: 'Judul event'),
             const SizedBox(height: 16),
-            // Tanggal
             _buildLabel('Date'),
             GestureDetector(
               onTap: _pickDate,
@@ -213,15 +219,12 @@ class _EditEventScreenState extends State<EditEventScreen> {
               ),
             ),
             const SizedBox(height: 16),
-            // Lokasi
             _buildLabel('Location'),
             _buildTextField(
-              controller: _locationController,
-              hint: 'Lokasi event',
-              icon: Icons.location_on_outlined,
-            ),
+                controller: _locationController,
+                hint: 'Lokasi event',
+                icon: Icons.location_on_outlined),
             const SizedBox(height: 16),
-            // Kategori
             _buildLabel('Category'),
             Wrap(
               spacing: 8,
@@ -229,7 +232,8 @@ class _EditEventScreenState extends State<EditEventScreen> {
               children: _categories.map((cat) {
                 final selected = _selectedCategory == cat;
                 return GestureDetector(
-                  onTap: () => setState(() => _selectedCategory = cat),
+                  onTap: () =>
+                      setState(() => _selectedCategory = cat),
                   child: Container(
                     padding: const EdgeInsets.symmetric(
                         horizontal: 16, vertical: 8),
@@ -244,22 +248,20 @@ class _EditEventScreenState extends State<EditEventScreen> {
                             : Colors.grey.shade300,
                       ),
                     ),
-                    child: Text(
-                      cat,
-                      style: TextStyle(
-                        color: selected ? Colors.white : Colors.grey.shade700,
-                        fontWeight: selected
-                            ? FontWeight.bold
-                            : FontWeight.normal,
-                        fontSize: 13,
-                      ),
-                    ),
+                    child: Text(cat,
+                        style: TextStyle(
+                            color: selected
+                                ? Colors.white
+                                : Colors.grey.shade700,
+                            fontWeight: selected
+                                ? FontWeight.bold
+                                : FontWeight.normal,
+                            fontSize: 13)),
                   ),
                 );
               }).toList(),
             ),
             const SizedBox(height: 16),
-            // Deskripsi
             _buildLabel('About the Event'),
             Container(
               decoration: BoxDecoration(
@@ -271,43 +273,26 @@ class _EditEventScreenState extends State<EditEventScreen> {
                 maxLines: 4,
                 decoration: const InputDecoration(
                   hintText: 'Deskripsi event...',
-                  hintStyle: TextStyle(color: Colors.grey, fontSize: 13),
+                  hintStyle:
+                      TextStyle(color: Colors.grey, fontSize: 13),
                   border: InputBorder.none,
                   contentPadding: EdgeInsets.all(16),
                 ),
               ),
             ),
-            const SizedBox(height: 16),
-            // Advanced options
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Row(
-                children: [
-                  Icon(Icons.settings_outlined, color: Colors.grey),
-                  SizedBox(width: 12),
-                  Text('Advanced Options',
-                      style: TextStyle(color: Color(0xFF1A1A2E))),
-                  Spacer(),
-                  Icon(Icons.chevron_right, color: Colors.grey),
-                ],
-              ),
-            ),
             const SizedBox(height: 32),
-            // Tombol
             Row(
               children: [
                 Expanded(
                   child: OutlinedButton(
                     onPressed: () => Navigator.pop(context),
                     style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      padding:
+                          const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(14)),
-                      side: BorderSide(color: Colors.grey.shade300),
+                      side: BorderSide(
+                          color: Colors.grey.shade300),
                     ),
                     child: const Text('Cancel',
                         style: TextStyle(color: Colors.grey)),
@@ -329,10 +314,12 @@ class _EditEventScreenState extends State<EditEventScreen> {
                             color: Colors.white),
                     label: const Text('Update Event',
                         style: TextStyle(
-                            color: Colors.white, fontWeight: FontWeight.bold)),
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold)),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF1A6BFF),
-                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      padding:
+                          const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(14)),
                     ),
@@ -351,7 +338,8 @@ class _EditEventScreenState extends State<EditEventScreen> {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Text(text,
-          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+          style: const TextStyle(
+              fontWeight: FontWeight.w600, fontSize: 13)),
     );
   }
 
@@ -369,13 +357,15 @@ class _EditEventScreenState extends State<EditEventScreen> {
         controller: controller,
         decoration: InputDecoration(
           hintText: hint,
-          hintStyle: const TextStyle(color: Colors.grey, fontSize: 13),
+          hintStyle:
+              const TextStyle(color: Colors.grey, fontSize: 13),
           prefixIcon: icon != null
-              ? Icon(icon, color: const Color(0xFF1A6BFF), size: 18)
+              ? Icon(icon,
+                  color: const Color(0xFF1A6BFF), size: 18)
               : null,
           border: InputBorder.none,
-          contentPadding:
-              const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16, vertical: 14),
         ),
       ),
     );

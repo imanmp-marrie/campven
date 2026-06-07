@@ -33,7 +33,8 @@ class _AddEventScreenState extends State<AddEventScreen> {
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
-            colorScheme: const ColorScheme.light(primary: Color(0xFF1A6BFF)),
+            colorScheme: const ColorScheme.light(
+                primary: Color(0xFF1A6BFF)),
           ),
           child: child!,
         );
@@ -73,32 +74,40 @@ class _AddEventScreenState extends State<AddEventScreen> {
     try {
       final authService = AuthService();
       final userName = await authService.getUserName();
+      final userId = await authService.getUserId();
 
       final event = EventModel(
-        id: '',
         title: title,
         description: desc,
         location: location,
         date: date,
         category: _selectedCategory,
         createdBy: userName,
+        userId: userId,
       );
 
-      await Provider.of<EventProvider>(context, listen: false).addEvent(event);
+      final success = await Provider.of<EventProvider>(context,
+              listen: false)
+          .addEvent(event);
 
       if (!mounted) return;
 
-      // Kirim notifikasi FCM saat event berhasil dibuat
-      await FCMService.sendEventNotification(context, title);
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Event berhasil ditambahkan!')),
-      );
-      Navigator.pop(context);
+      if (success) {
+        await FCMService.sendEventNotification(context, title);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text('Event berhasil ditambahkan!')),
+        );
+        Navigator.pop(context);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Gagal menambahkan event!')),
+        );
+      }
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Gagal menambahkan event: $e')),
+        SnackBar(content: Text('Error: $e')),
       );
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -113,18 +122,20 @@ class _AddEventScreenState extends State<AddEventScreen> {
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF1A1A2E)),
+          icon: const Icon(Icons.arrow_back,
+              color: Color(0xFF1A1A2E)),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
-          'Tambah Event',
-          style: TextStyle(color: Color(0xFF1A1A2E), fontWeight: FontWeight.bold),
-        ),
+        title: const Text('Tambah Event',
+            style: TextStyle(
+                color: Color(0xFF1A1A2E),
+                fontWeight: FontWeight.bold)),
         actions: [
           CircleAvatar(
             radius: 18,
             backgroundColor: Colors.grey.shade200,
-            child: const Icon(Icons.person, color: Colors.grey, size: 20),
+            child: const Icon(Icons.person,
+                color: Colors.grey, size: 20),
           ),
           const SizedBox(width: 16),
         ],
@@ -135,7 +146,8 @@ class _AddEventScreenState extends State<AddEventScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text('Poster Event',
-                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+                style: TextStyle(
+                    fontWeight: FontWeight.w600, fontSize: 13)),
             const SizedBox(height: 8),
             Container(
               width: double.infinity,
@@ -165,16 +177,16 @@ class _AddEventScreenState extends State<AddEventScreen> {
                           fontWeight: FontWeight.w600,
                           color: Color(0xFF1A1A2E))),
                   const Text('Maks. 5MB (JPG, PNG)',
-                      style: TextStyle(color: Colors.grey, fontSize: 12)),
+                      style:
+                          TextStyle(color: Colors.grey, fontSize: 12)),
                 ],
               ),
             ),
             const SizedBox(height: 20),
             _buildLabel('Nama Event'),
             _buildTextField(
-              controller: _titleController,
-              hint: 'Contoh: Seminar Karier Teknologi 2024',
-            ),
+                controller: _titleController,
+                hint: 'Contoh: Seminar Karier Teknologi 2024'),
             const SizedBox(height: 16),
             _buildLabel('Kategori'),
             Container(
@@ -187,11 +199,12 @@ class _AddEventScreenState extends State<AddEventScreen> {
                 child: DropdownButton<String>(
                   value: _selectedCategory,
                   isExpanded: true,
-                  hint: const Text('Pilih Kategori'),
                   items: _categories.map((cat) {
-                    return DropdownMenuItem(value: cat, child: Text(cat));
+                    return DropdownMenuItem(
+                        value: cat, child: Text(cat));
                   }).toList(),
-                  onChanged: (val) => setState(() => _selectedCategory = val!),
+                  onChanged: (val) =>
+                      setState(() => _selectedCategory = val!),
                 ),
               ),
             ),
@@ -228,10 +241,9 @@ class _AddEventScreenState extends State<AddEventScreen> {
             const SizedBox(height: 16),
             _buildLabel('Lokasi'),
             _buildTextField(
-              controller: _locationController,
-              hint: 'Gedung Rektorat Lt. 3 atau Zoom Meeting',
-              icon: Icons.location_on_outlined,
-            ),
+                controller: _locationController,
+                hint: 'Gedung Rektorat Lt. 3 atau Zoom Meeting',
+                icon: Icons.location_on_outlined),
             const SizedBox(height: 16),
             _buildLabel('Deskripsi'),
             Container(
@@ -243,8 +255,10 @@ class _AddEventScreenState extends State<AddEventScreen> {
                 controller: _descController,
                 maxLines: 4,
                 decoration: const InputDecoration(
-                  hintText: 'Jelaskan detail event, agenda, dan persyaratan peserta...',
-                  hintStyle: TextStyle(color: Colors.grey, fontSize: 13),
+                  hintText:
+                      'Jelaskan detail event, agenda, dan persyaratan peserta...',
+                  hintStyle:
+                      TextStyle(color: Colors.grey, fontSize: 13),
                   border: InputBorder.none,
                   contentPadding: EdgeInsets.all(16),
                 ),
@@ -262,7 +276,8 @@ class _AddEventScreenState extends State<AddEventScreen> {
                       borderRadius: BorderRadius.circular(14)),
                 ),
                 child: _isLoading
-                    ? const CircularProgressIndicator(color: Colors.white)
+                    ? const CircularProgressIndicator(
+                        color: Colors.white)
                     : const Text('Simpan Event',
                         style: TextStyle(
                             fontSize: 16,
@@ -289,7 +304,8 @@ class _AddEventScreenState extends State<AddEventScreen> {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Text(text,
-          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+          style: const TextStyle(
+              fontWeight: FontWeight.w600, fontSize: 13)),
     );
   }
 
@@ -307,13 +323,14 @@ class _AddEventScreenState extends State<AddEventScreen> {
         controller: controller,
         decoration: InputDecoration(
           hintText: hint,
-          hintStyle: const TextStyle(color: Colors.grey, fontSize: 13),
+          hintStyle:
+              const TextStyle(color: Colors.grey, fontSize: 13),
           prefixIcon: icon != null
               ? Icon(icon, color: const Color(0xFF1A6BFF), size: 18)
               : null,
           border: InputBorder.none,
-          contentPadding:
-              const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16, vertical: 14),
         ),
       ),
     );

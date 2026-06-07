@@ -5,10 +5,10 @@ import 'package:provider/provider.dart';
 import 'firebase_options.dart';
 import 'providers/event_provider.dart';
 import 'services/auth_service.dart';
+import 'services/fcm_service.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/event/home_screen.dart';
 
-// Handler notifikasi saat app di background/terminated
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
@@ -18,10 +18,7 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-
-  // Setup FCM background handler
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-
   runApp(const MyApp());
 }
 
@@ -38,7 +35,8 @@ class MyApp extends StatelessWidget {
         title: 'Campven',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF1A6BFF)),
+          colorScheme: ColorScheme.fromSeed(
+              seedColor: const Color(0xFF1A6BFF)),
           useMaterial3: true,
         ),
         home: const SplashScreen(),
@@ -66,7 +64,8 @@ class _SplashScreenState extends State<SplashScreen>
       vsync: this,
       duration: const Duration(seconds: 3),
     );
-    _progressAnimation = Tween<double>(begin: 0, end: 1).animate(_controller);
+    _progressAnimation =
+        Tween<double>(begin: 0, end: 1).animate(_controller);
     _controller.forward();
     _checkLogin();
   }
@@ -79,7 +78,8 @@ class _SplashScreenState extends State<SplashScreen>
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
-        builder: (_) => loggedIn ? const HomeScreen() : const LoginScreen(),
+        builder: (_) =>
+            loggedIn ? const HomeScreen() : const LoginScreen(),
       ),
     );
   }
@@ -112,11 +112,15 @@ class _SplashScreenState extends State<SplashScreen>
                 ),
               ],
             ),
-            child: const Icon(Icons.shield_outlined, size: 56, color: Color(0xFF1A6BFF)),
+            child: const Icon(Icons.shield_outlined,
+                size: 56, color: Color(0xFF1A6BFF)),
           ),
           const SizedBox(height: 24),
           const Text('Campven',
-              style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Color(0xFF1A6BFF))),
+              style: TextStyle(
+                  fontSize: 32,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF1A6BFF))),
           const SizedBox(height: 8),
           const Text('Your Campus, Organized.',
               style: TextStyle(fontSize: 14, color: Colors.grey)),
@@ -131,7 +135,8 @@ class _SplashScreenState extends State<SplashScreen>
                     return LinearProgressIndicator(
                       value: _progressAnimation.value,
                       backgroundColor: Colors.grey.shade300,
-                      valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF1A6BFF)),
+                      valueColor: const AlwaysStoppedAnimation<Color>(
+                          Color(0xFF1A6BFF)),
                       minHeight: 3,
                       borderRadius: BorderRadius.circular(10),
                     );
@@ -139,7 +144,10 @@ class _SplashScreenState extends State<SplashScreen>
                 ),
                 const SizedBox(height: 12),
                 const Text('INITIALIZING CAMPUS EXPERIENCE',
-                    style: TextStyle(fontSize: 10, letterSpacing: 1.5, color: Colors.grey)),
+                    style: TextStyle(
+                        fontSize: 10,
+                        letterSpacing: 1.5,
+                        color: Colors.grey)),
               ],
             ),
           ),

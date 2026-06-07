@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../services/auth_service.dart';
+import '../../services/api_service.dart';
 import '../../services/google_auth_service.dart';
 import '../event/home_screen.dart';
 import 'register_screen.dart';
@@ -32,21 +33,26 @@ class _LoginScreenState extends State<LoginScreen> {
 
     setState(() => _isLoading = true);
 
-    final savedEmail = await _authService.getUserEmail();
-    final savedName = await _authService.getUserName();
+    final result = await ApiService.login(email, password);
 
-    if (savedEmail == email) {
-      await _authService.saveLogin(savedName, email);
+    if (!mounted) return;
+
+    if (result['status'] == 'success') {
+      final data = result['data'];
+      await _authService.saveLogin(
+        data['name'],
+        data['email'],
+        userId: int.tryParse(data['id'].toString()),
+        role: data['role'] ?? 'mahasiswa',
+      );
       if (!mounted) return;
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (_) => const HomeScreen()),
       );
     } else {
-      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Email tidak ditemukan, silakan register!')),
+        SnackBar(content: Text(result['message'] ?? 'Login gagal!')),
       );
     }
 
@@ -82,7 +88,6 @@ class _LoginScreenState extends State<LoginScreen> {
         child: SingleChildScrollView(
           child: Column(
             children: [
-              // Ilustrasi atas
               Container(
                 width: double.infinity,
                 height: 260,
@@ -93,13 +98,11 @@ class _LoginScreenState extends State<LoginScreen> {
                   color: Color(0xFF1A6BFF),
                 ),
               ),
-              // Card form
               Container(
                 width: double.infinity,
                 decoration: const BoxDecoration(
                   color: Colors.white,
-                  borderRadius:
-                      BorderRadius.vertical(top: Radius.circular(32)),
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
                 ),
                 padding: const EdgeInsets.all(28),
                 child: Column(
@@ -119,18 +122,23 @@ class _LoginScreenState extends State<LoginScreen> {
                       style: TextStyle(fontSize: 13, color: Colors.grey),
                     ),
                     const SizedBox(height: 28),
-                    // Email
-                    const Text('Email',
-                        style: TextStyle(
-                            fontWeight: FontWeight.w600, fontSize: 13)),
+                    const Text(
+                      'Email',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 13,
+                      ),
+                    ),
                     const SizedBox(height: 8),
                     TextField(
                       controller: _emailController,
                       keyboardType: TextInputType.emailAddress,
                       decoration: InputDecoration(
                         hintText: 'nama@kampus.ac.id',
-                        prefixIcon: const Icon(Icons.mail_outline,
-                            color: Colors.grey),
+                        prefixIcon: const Icon(
+                          Icons.mail_outline,
+                          color: Colors.grey,
+                        ),
                         filled: true,
                         fillColor: const Color(0xFFF5F6FA),
                         border: OutlineInputBorder(
@@ -140,18 +148,23 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    // Password
-                    const Text('Kata Sandi',
-                        style: TextStyle(
-                            fontWeight: FontWeight.w600, fontSize: 13)),
+                    const Text(
+                      'Kata Sandi',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 13,
+                      ),
+                    ),
                     const SizedBox(height: 8),
                     TextField(
                       controller: _passwordController,
                       obscureText: _obscurePassword,
                       decoration: InputDecoration(
                         hintText: 'Minimal 8 karakter',
-                        prefixIcon: const Icon(Icons.lock_outline,
-                            color: Colors.grey),
+                        prefixIcon: const Icon(
+                          Icons.lock_outline,
+                          color: Colors.grey,
+                        ),
                         suffixIcon: IconButton(
                           icon: Icon(
                             _obscurePassword
@@ -160,7 +173,8 @@ class _LoginScreenState extends State<LoginScreen> {
                             color: Colors.grey,
                           ),
                           onPressed: () => setState(
-                              () => _obscurePassword = !_obscurePassword),
+                            () => _obscurePassword = !_obscurePassword,
+                          ),
                         ),
                         filled: true,
                         fillColor: const Color(0xFFF5F6FA),
@@ -175,12 +189,13 @@ class _LoginScreenState extends State<LoginScreen> {
                       alignment: Alignment.centerRight,
                       child: TextButton(
                         onPressed: () {},
-                        child: const Text('Lupa kata sandi?',
-                            style: TextStyle(color: Color(0xFF1A6BFF))),
+                        child: const Text(
+                          'Lupa kata sandi?',
+                          style: TextStyle(color: Color(0xFF1A6BFF)),
+                        ),
                       ),
                     ),
                     const SizedBox(height: 8),
-                    // Tombol Login
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton.icon(
@@ -190,101 +205,93 @@ class _LoginScreenState extends State<LoginScreen> {
                                 width: 18,
                                 height: 18,
                                 child: CircularProgressIndicator(
-                                    color: Colors.white, strokeWidth: 2),
+                                  color: Colors.white,
+                                  strokeWidth: 2,
+                                ),
                               )
                             : const Icon(Icons.login, color: Colors.white),
-                        label: const Text('Login',
-                            style: TextStyle(
-                                fontSize: 16, color: Colors.white)),
+                        label: const Text(
+                          'Login',
+                          style: TextStyle(fontSize: 16, color: Colors.white),
+                        ),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF1A6BFF),
-                          padding:
-                              const EdgeInsets.symmetric(vertical: 16),
+                          padding: const EdgeInsets.symmetric(vertical: 16),
                           shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(14)),
+                            borderRadius: BorderRadius.circular(14),
+                          ),
                         ),
                       ),
                     ),
                     const SizedBox(height: 20),
-                    // Divider
                     Row(
                       children: const [
                         Expanded(child: Divider()),
                         Padding(
                           padding: EdgeInsets.symmetric(horizontal: 12),
-                          child: Text('ATAU',
-                              style: TextStyle(
-                                  color: Colors.grey, fontSize: 12)),
+                          child: Text(
+                            'ATAU',
+                            style: TextStyle(color: Colors.grey, fontSize: 12),
+                          ),
                         ),
                         Expanded(child: Divider()),
                       ],
                     ),
                     const SizedBox(height: 20),
-                    // Google Sign In Button
                     SizedBox(
                       width: double.infinity,
                       child: OutlinedButton(
-                        onPressed:
-                            _isGoogleLoading ? null : _loginWithGoogle,
+                        onPressed: _isGoogleLoading ? null : _loginWithGoogle,
                         style: OutlinedButton.styleFrom(
-                          padding:
-                              const EdgeInsets.symmetric(vertical: 14),
+                          padding: const EdgeInsets.symmetric(vertical: 14),
                           shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(14)),
-                          side: const BorderSide(
-                              color: Color(0xFFE0E0E0)),
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                          side: const BorderSide(color: Color(0xFFE0E0E0)),
                         ),
                         child: _isGoogleLoading
                             ? const SizedBox(
                                 width: 20,
                                 height: 20,
                                 child: CircularProgressIndicator(
-                                    strokeWidth: 2),
+                                  strokeWidth: 2,
+                                ),
                               )
                             : Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.center,
+                                mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Container(
+                                  Image.asset(
+                                    'assets/images/google_logo.png',
                                     width: 24,
                                     height: 24,
-                                    decoration: const BoxDecoration(
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: const Text(
-                                      'G',
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                        color: Colors.red,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 18,
-                                      ),
-                                    ),
                                   ),
                                   const SizedBox(width: 10),
                                   const Text(
                                     'Masuk dengan Google',
                                     style: TextStyle(
-                                        color: Color(0xFF1A1A2E),
-                                        fontSize: 14),
+                                      color: Color(0xFF1A1A2E),
+                                      fontSize: 14,
+                                    ),
                                   ),
                                 ],
                               ),
                       ),
                     ),
                     const SizedBox(height: 24),
-                    // Register
                     Center(
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const Text('Belum punya akun? ',
-                              style: TextStyle(color: Colors.grey)),
+                          const Text(
+                            'Belum punya akun? ',
+                            style: TextStyle(color: Colors.grey),
+                          ),
                           GestureDetector(
                             onTap: () => Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (_) => const RegisterScreen()),
+                                builder: (_) => const RegisterScreen(),
+                              ),
                             ),
                             child: const Text(
                               'Daftar sekarang',
